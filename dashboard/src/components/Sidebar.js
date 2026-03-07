@@ -1,13 +1,12 @@
 import React from "react";
-import { Drawer, List, ListItem, ListItemText, Box, IconButton, useTheme, Divider } from "@mui/material";
+import { Drawer, List, ListItem, ListItemText, Box, useTheme } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
 import { useTheme as useCustomTheme } from "../ThemeContext";
 
 const Sidebar = () => {
   const location = useLocation();
   const muiTheme = useTheme();
-  const { isDark, setIsDark } = useCustomTheme();
+  const { isDark } = useCustomTheme();
 
   const menuItems = [
     { label: "Dashboard", path: "/" },
@@ -20,13 +19,17 @@ const Sidebar = () => {
 
   return (
     <Drawer 
-      variant="permanent" 
+      variant="permanent"
       anchor="left"
       sx={{
+        width: 260,
+        flexShrink: 0,
         "& .MuiDrawer-paper": {
+          width: 260,
           backgroundColor: muiTheme.palette.background.paper,
           borderRight: `1px solid ${muiTheme.palette.divider}`,
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+          zIndex: 1,
         }
       }}
     >
@@ -45,26 +48,6 @@ const Sidebar = () => {
           </h3>
           <p style={{ margin: "4px 0 0 0", fontSize: "0.8rem", opacity: 0.9 }}>Federated Learning</p>
         </Box>
-
-        {/* Theme Toggle */}
-        <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: "0.85rem", fontWeight: 500 }}>Theme</span>
-          <IconButton
-            size="small"
-            onClick={() => setIsDark(!isDark)}
-            sx={{
-              color: muiTheme.palette.primary.main,
-              backgroundColor: muiTheme.palette.mode === 'dark' ? '#2a2a3e' : '#f0f0f0',
-              "&:hover": {
-                backgroundColor: muiTheme.palette.mode === 'dark' ? '#3a3a4e' : '#e0e0e0',
-              }
-            }}
-          >
-            {isDark ? <Brightness7 fontSize="small" /> : <Brightness4 fontSize="small" />}
-          </IconButton>
-        </Box>
-
-        <Divider sx={{ my: 1 }} />
 
         {/* Navigation Items */}
         <List sx={{ p: 0 }}>

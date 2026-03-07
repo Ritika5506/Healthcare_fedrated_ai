@@ -11,9 +11,17 @@ import FederatedLearning from "./pages/FederatedLearning";
 
 function AppContent() {
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", width: "100%" }}>
       <Sidebar />
-      <Box sx={{ flex: 1, overflow: "auto" }}>
+      <Box
+        component="main"
+        sx={{
+          flex: 1,
+          overflow: "auto",
+          marginLeft: 0,
+          width: "100%"
+        }}
+      >
         <Routes>
           <Route path="/" element={<Dash />} />
           <Route path="/hospitals" element={<Hospitals />} />
