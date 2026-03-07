@@ -6,7 +6,7 @@ import { useTheme as useCustomTheme } from "../ThemeContext";
 const Sidebar = () => {
   const location = useLocation();
   const muiTheme = useTheme();
-  const { isDark } = useCustomTheme();
+useCustomTheme();
 
   const menuItems = [
     { label: "Dashboard", path: "/" },
