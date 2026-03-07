@@ -9,7 +9,7 @@ from tensorflow.keras.utils import image_dataset_from_directory
 # -------------------------------
 global_model_path = "global_model.h5"  # make sure this path is correct
 global_model = load_model(global_model_path)
-print("✅ Global model loaded successfully.\n")
+print("[OK] Global model loaded successfully.\n")
 
 # -------------------------------
 # Step 2: Define hospital dataset paths
@@ -26,7 +26,7 @@ hospital_dirs = {
 test_datasets = {}
 for name, path in hospital_dirs.items():
     if not os.path.exists(path):
-        print(f"⚠️ Warning: Path does not exist -> {path}")
+        print(f"[WARNING] Warning: Path does not exist -> {path}")
         continue
     
     test_datasets[name] = image_dataset_from_directory(
@@ -37,14 +37,14 @@ for name, path in hospital_dirs.items():
         batch_size=32,
         shuffle=False
     )
-    print(f"✅ Loaded dataset for {name}")
+    print(f"[OK] Loaded dataset for {name}")
 
 print("\n")
 
 # -------------------------------
 # Step 4: Evaluate global model on each hospital
 # -------------------------------
-print("📊 Global Model Accuracy on Each Hospital Dataset:\n")
+print("[STATS] Global Model Accuracy on Each Hospital Dataset:\n")
 for name, dataset in test_datasets.items():
     loss, accuracy = global_model.evaluate(dataset, verbose=0)
     print(f"{name}: {accuracy*100:.2f}%")

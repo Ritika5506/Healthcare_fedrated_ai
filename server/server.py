@@ -5,14 +5,18 @@ import os
 import sys
 
 # Ensure parent path is on sys.path to import model
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
 from model import create_model
 from blockchain import Blockchain, hash_parameters
+
+# Change to project root to handle relative paths correctly
+os.chdir(project_root)
 
 # -----------------------------
 # Global model initialization
 # -----------------------------
-global_model_path = "global_model.h5"
+global_model_path = os.path.join(project_root, "global_model.h5")
 if os.path.exists(global_model_path):
     model = tf.keras.models.load_model(global_model_path)
 else:
@@ -100,13 +104,14 @@ def find_free_port():
 
 port = find_free_port()
 server_address = f"127.0.0.1:{port}"
-print(f"🚀 Flower server will run on {server_address}")
+print(f"[ROCKET] Flower server will run on {server_address}")
 
-# Save server address for clients
-with open("server_address.txt", "w") as f:
+# Save server address for clients with absolute path
+address_file = os.path.join(project_root, "server_address.txt")
+with open(address_file, "w") as f:
     f.write(server_address)
 
-print(f"✅ Server ready. Clients should connect to {server_address}")
+print(f"[OK] Server ready. Clients should connect to {server_address}")
 
 # -----------------------------
 # Start Flower server (blocking)

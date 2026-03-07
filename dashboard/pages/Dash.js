@@ -6,6 +6,8 @@ import Sidebar from "../components/Sidebar";
 import StatsCards from "../components/StatsCards";
 import AccuracyChart from "../components/AccuracyChart";
 import HospitalTable from "../components/HospitalTable";
+import PredictionPanel from "../components/PredictionPanel";
+import ModelStats from "../components/ModelStats";
 
 const Dash = () => {
 
@@ -13,7 +15,8 @@ const Dash = () => {
   const [status, setStatus] = useState({
     connected_hospitals: 0,
     training_rounds: 0,
-    current_accuracy: 0
+    current_accuracy: 0,
+    model_loaded: false
   });
 
   useEffect(() => {
@@ -42,12 +45,23 @@ const Dash = () => {
 
         <StatsCards status={status} />
 
-        <Paper elevation={3} sx={{ mt:4, p:3 }}>
+        {/* Model Status */}
+        <Box sx={{ mt: 4 }}>
+          <ModelStats />
+        </Box>
+
+        {/* Prediction Panel */}
+        <Box sx={{ mt: 4 }}>
+          <PredictionPanel />
+        </Box>
+
+        {/* Training Metrics */}
+        <Paper elevation={3} sx={{ mt: 4, p: 3 }}>
           <Typography variant="h6">Accuracy Trend</Typography>
           <AccuracyChart trainingData={trainingData} />
         </Paper>
 
-        <Paper elevation={3} sx={{ mt:4, p:3 }}>
+        <Paper elevation={3} sx={{ mt: 4, p: 3 }}>
           <Typography variant="h6">Hospital Contributions</Typography>
           <HospitalTable trainingData={trainingData} />
         </Paper>
