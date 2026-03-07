@@ -13,7 +13,6 @@ import json
 # ---------------------------
 app = FastAPI()
 
-# Allow frontend connection
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,9 +24,8 @@ app.add_middleware(
 # ---------------------------
 # Paths
 # ---------------------------
-# Use current file directory for safe paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "global_model.h5")
+MODEL_DIR = os.path.join(BASE_DIR, "saved_model", "my_model")  # SavedModel folder
 CONFIG_PATH = os.path.join(BASE_DIR, "model_config.json")
 DATASET_DIR = os.path.join(BASE_DIR, "dataset")
 
@@ -62,13 +60,12 @@ global_model = None
 def load_model():
     global global_model
     try:
-        if os.path.exists(MODEL_PATH):
-            # CPU only
-            tf.config.set_visible_devices([], "GPU")
-            global_model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-            print("[OK] Global model loaded successfully")
+        if os.path.exists(MODEL_DIR):
+            tf.config.set_visible_devices([], "GPU")  # CPU-only
+            global_model = tf.keras.models.load_model(MODEL_DIR, compile=False)
+            print("[OK] Global model loaded successfully (SavedModel format)")
         else:
-            print("[WARNING] Model file not found:", MODEL_PATH)
+            print("[WARNING] SavedModel folder not found:", MODEL_DIR)
             global_model = None
     except Exception as e:
         print("[ERROR] Error loading model:", e)
@@ -82,11 +79,7 @@ def get_training_data():
     hospital_accuracies = metrics.get("hospital_accuracies", {})
     hospitals = list(hospital_accuracies.keys())
     training_data = [
-        {
-            "round": i + 1,
-            "hospital": hospitals[i % len(hospitals)],
-            "accuracy": accuracy
-        }
+        {"round": i + 1, "hospital": hospitals[i % len(hospitals)], "accuracy": accuracy}
         for i, (_, accuracy) in enumerate(hospital_accuracies.items())
     ]
     return training_data
@@ -117,34 +110,24 @@ def status_endpoint():
 def hospital_accuracies_endpoint():
     return get_hospital_accuracies()
 
-# ---------------------------
-# Prediction Endpoint
-# ---------------------------
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     if global_model is None:
         return {"error": "Model not loaded"}
-
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
-
         if image.mode != "RGB":
             image = image.convert("RGB")
-
         image = image.resize((64, 64))
-        image_array = np.array(image).astype(np.float32) / 255.0
-        image_array = np.expand_dims(image_array, axis=0)
-
+        image_array = np.expand_dims(np.array(image).astype(np.float32) / 255.0, axis=0)
         prediction = global_model.predict(image_array, verbose=0)
         confidence_score = float(prediction[0][0])
         threshold = 0.46
         predicted_class = "Pneumonia" if confidence_score > threshold else "Normal"
-
         normal_prob = confidence_score * 100
         pneumonia_prob = (1 - confidence_score) * 100
         max_prob = max(normal_prob, pneumonia_prob)
-
         return {
             "file_name": file.filename,
             "prediction": predicted_class,
@@ -153,13 +136,9 @@ async def predict(file: UploadFile = File(...)):
             "pneumonia_probability": round(pneumonia_prob, 2),
             "raw_prediction": round(confidence_score, 4)
         }
-
     except Exception as e:
         return {"error": str(e)}
 
-# ---------------------------
-# Sample Images Endpoints
-# ---------------------------
 @app.get("/sample-images")
 def sample_images_endpoint():
     samples = {"normal": [], "pneumonia": []}
@@ -181,16 +160,13 @@ def sample_image_endpoint(category: str, filename: str):
         return FileResponse(file_path, media_type="image/jpeg")
     return {"error": "File not found"}
 
-# ---------------------------
-# Model Stats
-# ---------------------------
 @app.get("/model-stats")
 def model_stats_endpoint():
     if global_model is None:
         return {"error": "Model not loaded"}
     return {
         "model_loaded": True,
-        "model_path": MODEL_PATH,
+        "model_path": MODEL_DIR,
         "input_shape": [64, 64, 3],
         "output_shape": 1,
         "task": "Binary Classification",
@@ -198,7 +174,7 @@ def model_stats_endpoint():
     }
 
 # ---------------------------
-# Run Locally
+# Run Locally / Render
 # ---------------------------
 if __name__ == "__main__":
     import uvicorn
