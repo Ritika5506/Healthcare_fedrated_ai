@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   LinearProgress,
-  Grid,
   Chip,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -150,40 +149,63 @@ const PredictionPanel = () => {
 
         {/* Results */}
         {prediction && !prediction.error && (
-          <Card sx={{ mt: 2, backgroundColor: "#f5f5f5" }}>
+          <Card sx={{ mt: 2, backgroundColor: prediction.prediction === "Pneumonia" ? "#ffebee" : "#e8f5e9" }}>
             <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Prediction Result
-              </Typography>
-
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {prediction.prediction}
+              <Box sx={{ mb: 2, textAlign: "center", p: 2, background: prediction.prediction === "Pneumonia" ? "#ef5350" : "#66bb6a", color: "white", borderRadius: 1 }}>
+                <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
+                  {prediction.prediction === "Pneumonia" ? "⚠️ PNEUMONIA DETECTED" : "✓ NORMAL"}
                 </Typography>
                 <Chip
-                  label={`${prediction.confidence}% confidence`}
-                  color={prediction.prediction === "Pneumonia" ? "error" : "success"}
-                  variant="outlined"
+                  label={`Confidence: ${prediction.confidence}%`}
+                  sx={{ background: "rgba(255,255,255,0.3)", color: "white", fontWeight: "bold" }}
                 />
               </Box>
 
-              <Typography variant="caption" color="textSecondary" block>
-                Normal Probability: {prediction.normal_prob}%
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
+                Prediction Breakdown:
               </Typography>
-              <LinearProgress
-                variant="determinate"
-                value={prediction.normal_prob}
-                sx={{ mb: 1 }}
-              />
 
-              <Typography variant="caption" color="textSecondary" block>
-                Pneumonia Probability: {prediction.pneumonia_prob}%
-              </Typography>
-              <LinearProgress
-                variant="determinate"
-                value={prediction.pneumonia_prob}
-                color="error"
-              />
+              <Box sx={{ mb: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                    Normal (Healthy)
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "#4caf50" }}>
+                    {prediction.normal_probability}%
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={prediction.normal_probability}
+                  sx={{ height: 8, borderRadius: 4, background: "#e0e0e0" }}
+                />
+              </Box>
+
+              <Box sx={{ mb: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                    Pneumonia (Infected)
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", color: "#f44336" }}>
+                    {prediction.pneumonia_probability}%
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={prediction.pneumonia_probability}
+                  color="error"
+                  sx={{ height: 8, borderRadius: 4 }}
+                />
+              </Box>
+
+              <Box sx={{ p: 1.5, background: "#f5f5f5", borderRadius: 1, mt: 2 }}>
+                <Typography variant="caption" color="textSecondary">
+                  <strong>Model Confidence Level:</strong> {prediction.model_confidence}
+                </Typography>
+                <Typography variant="caption" color="textSecondary" sx={{ display: "block", mt: 0.5 }}>
+                  <strong>Raw Prediction Score:</strong> {prediction.raw_prediction}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         )}
